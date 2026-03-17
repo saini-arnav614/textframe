@@ -24,7 +24,10 @@ function resize() {
   drawGrid(); render();
 }
 window.addEventListener('resize', resize);
-resize();
+
+document.addEventListener('DOMContentLoaded', () => {
+  resize();
+});
 
 function drawGrid() {
   const W = gc.width, H = gc.height, step = GRID * zoom;
@@ -552,6 +555,8 @@ document.addEventListener('keydown', e => {
 });
 document.addEventListener('keyup', e => { shiftDown = e.shiftKey; });
 
-setTimeout(() => {
-  if (!loadFromStorage()) render(); else render();
-}, 50);
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    if (!loadFromStorage()) render(); else render();
+  }, 50);
+});
