@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe → ASCII</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../wireframe.css">
+</head>
+<body>
+
+<div class="topbar">
+  <pre class="logo">┌───────────┐
+          │ textwrite │
+          └───────────┘</pre>
+  <div class="toolbar">
+    <!-- select -->
+    <button class="tool on" id="tool-select" onclick="setTool('select')">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 2l10 6-5 1-3 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div class="tip">Select (V)</div>
+    </button>
+    <div class="sep"></div>
+    <!-- rect -->
+    <button class="tool" id="tool-rect" onclick="setTool('rect')">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg>
+      <div class="tip">Rectangle (R)</div>
+    </button>
+    <!-- placeholder -->
+    <button class="tool" id="tool-placeholder" onclick="setTool('placeholder')">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2.5 2"/><path d="M5 11L7 7.5l2 3 1.5-2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="tip">Placeholder (P)</div>
+    </button>
+    <!-- arrow -->
+    <button class="tool" id="tool-arrow" onclick="setTool('arrow')">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="tip">Arrow (A)</div>
+    </button>
+    <!-- line -->
+    <button class="tool" id="tool-line" onclick="setTool('line')">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="tip">Line (L)</div>
+    </button>
+    <!-- text -->
+    <button class="tool" id="tool-text" onclick="setTool('text')">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M8 4v9M5 13h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="tip">Text (T)</div>
+    </button>
+    <div class="sep"></div>
+    <!-- undo -->
+    <button class="tool" onclick="undo()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M3 7H10a4 4 0 010 8H6M3 7L6 4M3 7l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="tip">Undo (Cmd+Z)</div>
+    </button>
+    <!-- new doc -->
+    <button class="tool" onclick="newDoc()">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M9 2H5a1.5 1.5 0 00-1.5 1.5v9A1.5 1.5 0 005 14h6a1.5 1.5 0 001.5-1.5V6L9 2z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2v4h3.5" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div class="tip">New document</div>
+    </button>
+  </div>
+  <div class="right">
+    <button class="btn" onclick="toggleHelp()">
+      <svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 8V7.5C6 6.5 7.5 6 7.5 4.8 7.5 3.8 6.8 3.2 6 3.2 5.2 3.2 4.5 3.8 4.5 4.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6" cy="9" r=".5" fill="currentColor"/></svg>
+      Help
+    </button>
+    <button class="btn" onclick="copyAscii()">
+      <svg viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 4V2.5A1.5 1.5 0 006.5 1H2.5A1.5 1.5 0 001 2.5v4A1.5 1.5 0 002.5 8H4" stroke="currentColor" stroke-width="1.2"/></svg>
+      Copy ASCII
+    </button>
+    <button class="btn pri" onclick="copyForAI()">
+      <svg viewBox="0 0 12 12" fill="none"><path d="M6 1l1.5 3.5H11L8.2 6.8l1.1 3.7L6 8.5 2.7 10.5 3.8 6.8 1 4.5h3.5z" fill="currentColor"/></svg>
+      Copy for AI
+    </button>
+  </div>
+</div>
+
+<div class="cw" id="cw">
+  <canvas id="gc"></canvas>
+  <canvas id="mc"></canvas>
+
+  <!-- inline text input -->
+  <div id="tio"><input id="tif" placeholder="label..." autocomplete="off" spellcheck="false"></div>
+
+  <!-- props panel -->
+  <div id="props">
+    <div class="pl">element</div>
+    <div class="pr"><span>label</span><input class="pi" id="pi-label" oninput="upLabel(this.value)" style="width:90px;text-align:left"></div>
+    <div class="pr"><span>x</span><input class="pi" id="pi-x" type="number" oninput="upPos()"></div>
+    <div class="pr"><span>y</span><input class="pi" id="pi-y" type="number" oninput="upPos()"></div>
+    <div class="pr" id="pr-w"><span>w</span><input class="pi" id="pi-w" type="number" oninput="upSize()"></div>
+    <div class="pr" id="pr-h"><span>h</span><input class="pi" id="pi-h" type="number" oninput="upSize()"></div>
+    <button class="delbtn" onclick="delSel()">delete</button>
+  </div>
+
+  <!-- zoom bar -->
+  <div id="zoom-bar">
+    <button class="zbtn" onclick="zoomOut()">−</button>
+    <span id="zoom-lbl">100%</span>
+    <button class="zbtn" onclick="zoomIn()">+</button>
+    <button class="zbtn" onclick="zoomReset()" style="font-size:11px;width:auto;padding:0 5px">reset</button>
+  </div>
+</div>
+
+<!-- bottom panel -->
+<div class="bot" id="bot">
+  <div id="bot-resize"></div>
+  <div class="bh" onclick="toggleBot()">
+    <div class="bh-t">
+      <svg viewBox="0 0 12 12" fill="none"><path d="M1.5 3h9M1.5 6h9M1.5 9h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      ASCII output — updates live
+    </div>
+    <div class="bh-a" onclick="event.stopPropagation()">
+      <button class="bbtn cp" onclick="event.stopPropagation();copyAscii()">copy</button>
+      <button class="bbtn" id="bot-tog" onclick="event.stopPropagation();toggleBot()">collapse ▾</button>
+    </div>
+  </div>
+  <div class="bc"><textarea id="aout" readonly placeholder="Draw something to see the ASCII wireframe..."></textarea></div>
+</div>
+
+<!-- help modal -->
+<div id="help-modal">
+  <div class="hm">
+    <div class="hm-top">
+      <div class="hm-title">Tool guide</div>
+      <button class="hm-close" onclick="toggleHelp()">✕</button>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 2l10 6-5 1-3 5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg></div>
+      <div><div class="ht-name">Select <span class="ht-kbd">V</span></div><div class="ht-desc">Click to select. Drag to move. Double-click to edit label. Delete key removes selected element.</div></div>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/></svg></div>
+      <div><div class="ht-name">Rectangle <span class="ht-kbd">R</span></div><div class="ht-desc">Drag to draw a box. Double-click to add a label centered inside. Use for panels, cards, modals, sidebars.</div></div>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3" stroke-dasharray="2.5 2"/></svg></div>
+      <div><div class="ht-name">Placeholder <span class="ht-kbd">P</span></div><div class="ht-desc">Drag to draw a dashed box. A label prompt appears immediately — type the content type (image, avatar, chart, etc.). Renders as &lt; label &gt; in ASCII.</div></div>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M10 5l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div><div class="ht-name">Arrow <span class="ht-kbd">A</span></div><div class="ht-desc">Draws an L-shaped arrow. Drag horizontally for horizontal-first, vertically for vertical-first. Shows flow direction.</div></div>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div><div class="ht-name">Line <span class="ht-kbd">L</span></div><div class="ht-desc">Plain line with no arrowhead. Hold Shift to snap to horizontal or vertical. Use for dividers and separators.</div></div>
+    </div>
+    <div class="ht">
+      <div class="ht-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M8 4v9M5 13h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div>
+      <div><div class="ht-name">Text <span class="ht-kbd">T</span></div><div class="ht-desc">Click anywhere to place a text label. Type and press Enter. Use for headings, annotations, or any freestanding text.</div></div>
+    </div>
+    <div class="hm-tip">💡 Zoom with + / − keys or Ctrl+scroll. ASCII updates live as you draw. "Copy for AI" wraps it in a prompt.</div>
+  </div>
+</div>
+
+<div id="snack">Copied!</div>
+
+<script src="../wireframe.js"></script>
+</body>
+</html>
